@@ -102,6 +102,10 @@ def login_post(request: Request, response: Response, username: str = Form(...), 
 # ------------------------------
 # Dashboard
 # ------------------------------
+@app.get("/")
+async def root():
+    return RedirectResponse(url="/dashboard")
+
 @app.get("/dashboard")
 def dashboard(request: Request):
     # Il middleware garantisce che il cookie sia valido
