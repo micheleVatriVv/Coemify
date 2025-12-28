@@ -1,0 +1,112 @@
+body {
+    background: linear-gradient(to right, #4e54c8, #8f94fb);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.header {
+    text-align: center;
+    padding: 30px 20px;
+    color: white;
+    text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.3);
+}
+
+.header h1 {
+    font-size: 50px;
+    margin-bottom: 10px;
+}
+
+.header p {
+    font-size: 18px;
+}
+
+.drop-zone {
+    border: 2px dashed #4e54c8;
+    border-radius: 12px;
+    padding: 40px 20px;
+    text-align: center;
+    color: #4e54c8;
+    cursor: pointer;
+    transition: 0.3s;
+    background-color: rgba(255, 255, 255, 0.6);
+}
+
+.drop-zone:hover {
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+.drop-zone.dragover {
+    background-color: #eef0ff;
+    border-color: #3b40a4;
+}
+
+#dashboardContent .row {
+    display: flex;
+    gap: 1rem;
+}
+
+.cover-container img {
+    width: 100%;
+    max-width: 250px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+}
+
+#uploadCoverBtn {
+    background-color: white;
+    color: #4e54c8;
+    border: none;
+    border-radius: 8px;
+    padding: 10px;
+    margin-top: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+    width: 100%;
+    max-width: 200px;
+}
+
+#uploadCoverBtn:hover {
+    background-color: #3b40a4;
+}
+
+button {
+    background-color: #4e54c8;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px;
+    margin-top: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn.save {
+    background-color: #4e54c8;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px;
+    margin-top: 10px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background-color: #3b40a4;
+}
+
+.list-group-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    color: white;
+}
+
+.autopopulated {
+    background-color: #d0f0c0; /* Verde chiaro per evidenziare */
+    border: 2px solid #28a745; /* Colore verde per indicare che il campo è stato popolato */
+}
