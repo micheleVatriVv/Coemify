@@ -2,21 +2,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const dropZone = document.getElementById("dropZone");
     const fileInput = document.getElementById("audioFile");
+    const fileInfo = document.getElementById("fileInfo");
 
     /* CLICK → file picker */
     dropZone.addEventListener("click", () => {
         fileInput.click();
     });
 
-    /* ⚠️ BLOCCO COMPORTAMENTO DEFAULT DEL BROWSER */
     ["dragenter", "dragover", "dragleave", "drop"].forEach(event => {
-        document.addEventListener(event, e => {
+        dropZone.addEventListener(event, e => {
             e.preventDefault();
             e.stopPropagation();
         });
     });
 
-    /* EFFETTI VISIVI */
     dropZone.addEventListener("dragover", () => {
         dropZone.classList.add("dragover");
     });
@@ -25,29 +24,49 @@ document.addEventListener("DOMContentLoaded", () => {
         dropZone.classList.remove("dragover");
     });
 
-    /* DROP FILE AUDIO */
     dropZone.addEventListener("drop", (e) => {
-        dropZone.cimg_datalassList.remove("dragover");
+        dropZone.classList.remove("dragover");
 
         if (e.dataTransfer.files.length > 0) {
             fileInput.files = e.dataTransfer.files;
 
-            // Mostra all’utente il nome del file
             const file = e.dataTransfer.files[0];
-            const fileInfo = document.getElementById("fileInfo");
-            fileInfo.textContent = `${file.name} (${(file.size/1024).toFixed(1)} KB)`;
+            fileInfo.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
         }
     });
 
     fileInput.addEventListener("change", () => {
         if (fileInput.files.length > 0) {
             const file = fileInput.files[0];
-            const fileInfo = document.getElementById("fileInfo");
-            fileInfo.textContent = `${file.name} (${(file.size/1024).toFixed(1)} KB)`;
+            fileInfo.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
         }
     });
 
 });
+
+
+// Alert output
+const showAlert = (message, type) => {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.role = 'alert';
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="font-size: 0.75em; margin-top: 0.25em;"></button>
+    `;
+    alertContainer.appendChild(alertDiv);
+    setTimeout(() => {
+        alertDiv.classList.remove('show');
+        alertDiv.addEventListener('transitionend', () => {
+            alertDiv.remove();
+        }, { once: true });
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 600);
+    }, 10000);
+}
 
 async function loadArtistsAndAlbums(data) {
     try {
@@ -57,33 +76,42 @@ async function loadArtistsAndAlbums(data) {
 
         // Popola i datalist per artisti
         const artistList = document.getElementById("artists");
-        artistList.innerHTML = ""; // svuota prima di popolare
+        artistList.innerHTML = "";
         artists.forEach(artist => {
             const option = document.createElement("option");
             option.value = artist;
             artistList.appendChild(option);
         });
 
-        // Popola i datalist per album
+        function normalizeValue(v) {
+            if (!v) return "";
+            if (typeof v === "string") return v;
+            if (typeof v === "object" && v.name) return v.name;
+            return "";
+        }
+
         const albumList = document.getElementById("albums");
         albumList.innerHTML = "";
         albums.forEach(album => {
+            const val = normalizeValue(album);
+            if (!val) return;
             const option = document.createElement("option");
-            option.value = album;
+            option.value = val;
             albumList.appendChild(option);
         });
 
-        // Popola i datalist per generi
         const genreList = document.getElementById("genres");
         genreList.innerHTML = "";
         genres.forEach(genre => {
+            const val = normalizeValue(genre);
+            if (!val) return;
             const option = document.createElement("option");
-            option.value = genre;
+            option.value = val;
             genreList.appendChild(option);
         });
 
     } catch (error) {
-        console.error('Errore nella richiesta di artisti, album e generi:', error);
+        showAlert(`Errore: ${error}`, 'danger')
     }
 }
 
@@ -111,7 +139,8 @@ async function handleUpload(event) {
 
     if (!response.ok) {
         const error = await response.json();
-        return alert(error.detail || "Errore caricamento");
+        showAlert(`Errore: ${error.detail || "unknown"}`, 'danger');
+        return;
     }
 
     const data = await response.json();
@@ -188,7 +217,7 @@ async function checkDuplicates() {
     const response = await fetch(`/search-duplicates?query=${encodeURIComponent(query)}`);
     
     if (!response.ok) {
-        alert("Errore nella w-30ricerca dei duplicati!");
+        showAlert(`Errore durante la ricerca dei duplicati`, 'warning');
         return;
     }
     
@@ -222,7 +251,7 @@ async function searchMetadata() {
     const title = document.getElementById("title").value.trim();
     const artist = document.getElementById("artist").value.trim();
 
-    if (!title || !artist) return alert("Inserisci titolo e artista.");
+    if (!title || !artist) return showAlert(`Titolo e artista obbligatori`, 'warning');
 
     const query = `recording:${title} AND artist:${artist}`;
     const url = `https://musicbrainz.org/ws/2/recording/?query=${encodeURIComponent(query)}&fmt=json&limit=25`;
@@ -231,7 +260,7 @@ async function searchMetadata() {
         const response = await fetch(url);
         const data = await response.json();
         if (!data.recordings || data.recordings.length === 0) {
-            alert("Nessun metadato trovato.");
+            showAlert(`Nessun metadato trovato`, 'warning');
             return;
         }
 
@@ -316,7 +345,7 @@ async function searchMetadata() {
 
     } catch (error) {
         console.error(error);
-        alert("Errore nella ricerca dei metadati.");
+        showAlert(`Ricerca non riuscita, riprovare finchè non va`, 'warning');
     }
 }
 
@@ -355,24 +384,25 @@ async function sendFinal(event) {
         // Gestione della risposta dal backend
         if (!response.ok) {
             const error = await response.json();
-            alert("Errore durante l'upload: " + (error.detail || "Errore sconosciuto"));
+            showAlert("Errore durante l'upload: " + (error.detail || "Errore sconosciuto"), 'danger');
             return;
         }
 
         // Se l'upload è stato completato con successo
         const data = await response.json();
-        alert(data.message || "File caricato con successo!");
+        showAlert(data.message || "File caricato con successo!", 'success');
+                
         
-        // Ricarica la pagina o esegui altre azioni
-        location.reload();
         
     } catch (error) {
         console.error("Errore durante l'upload:", error);
-        alert("Si è verificato un errore durante l'upload.");
+        showAlert("Errore durante l'upload:" + error, 'danger');
     } finally {
         // Nascondi lo spinner di caricamento una volta completato
         document.getElementById("uploadSpinner").style.display = "none";
-        location.reload()
+        setTimeout(() => {
+            location.reload();
+        }, 3000);
     }
 }
 

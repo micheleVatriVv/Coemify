@@ -1,5 +1,5 @@
 import base64
-from mutagen.id3 import ID3, TIT2, TPE1, TALB, TCON, TDRC, APIC
+from mutagen.id3 import ID3, TIT2, TPE1, TPE2, TALB, TCON, TDRC, TCOM, APIC, TXXX
 from mutagen.mp3 import MP3
 
 # ------------------------
@@ -43,15 +43,37 @@ def update_metadata(file_path, data, cover_data=None):
 
     # Aggiungi o aggiorna i metadati ID3
     audio.tags = audio.tags or ID3()
+    
+    artist = data.get("artist")
+    album = data.get("album")
+    
+    # Rimozione campi esistenti
+    for tag in [
+        "TPE1", "TPE2", "TCOM",
+        "TALB", "TIT2", "TCON", "TDRC"
+    ]:
+        audio.tags.delall(tag)
+
+    audio.tags.delall("TXXX")
+    audio.tags.delall("APIC")
 
     # Titolo (TIT2)
     if data.get("title"):
         audio["TIT2"] = TIT2(encoding=3, text=data["title"])
 
-    # Artista (TPE1)
-    if data.get("artist"):
-        audio["TPE1"] = TPE1(encoding=3, text=data["artist"])
+    # Artisti
+    if artist:
+        audio["TPE1"] = TPE1(encoding=3, text=artist)  # artista brano
+        audio["TPE2"] = TPE2(encoding=3, text=artist)  # artista album
+        audio["TCOM"] = TCOM(encoding=3, text=artist)  # compositore
 
+        # Extra compatibilità
+        audio["TXXX:ALBUMARTIST"] = TXXX(
+            encoding=3,
+            desc="ALBUMARTIST",
+            text=artist
+        )
+        
     # Album (TALB)
     if data.get("album"):
         audio["TALB"] = TALB(encoding=3, text=data["album"])
@@ -64,16 +86,14 @@ def update_metadata(file_path, data, cover_data=None):
     if data.get("release_date"):
         audio["TDRC"] = TDRC(encoding=3, text=data["release_date"])
 
-    # Se la copertura è presente, aggiungi la copertura
-    if cover_data:
-        audio.tags.delall("APIC")
-        
+    # Cover (APIC)
+    if cover_data:        
         audio["APIC"] = APIC(
             encoding=3,  # UTF-8
-            mime="image/jpeg",  # Tipo immagine (JPEG)
+            mime="image/jpeg",
             type=3,  # Copertina frontale
             desc="Cover",
-            data=cover_data  # Dati immagine
+            data=cover_data
         )
 
     # Salva i metadati nel file audio
