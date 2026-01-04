@@ -161,9 +161,9 @@ async function handleUpload(event) {
     document.getElementById("duration").value = md.duration || "";
     document.getElementById("release_date").value = md.release_date || "";
 
-    if (md.cover) {
+    /*if (md.cover) {
         document.getElementById("coverImg").src = md.cover;
-    }
+    }*/
 
     // Popola la lista dei duplicati
     const list = document.getElementById("duplicatesList");
