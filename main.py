@@ -4,6 +4,7 @@
 import os
 from pathlib import Path
 import uuid
+import time
 
 # FastAPI
 from fastapi import FastAPI, Response, Request, File, UploadFile, HTTPException, Form
@@ -155,6 +156,8 @@ async def upload_temp(file: UploadFile, request: Request):
     temp_path = UPLOAD_DIR / filename
     
     contents = await file.read()
+    if len(contents) > MAX_SIZE:
+        raise HTTPException(400, f"File troppo grande (max {MAX_SIZE} MB)")
     temp_path.write_bytes(contents)
 
     metadata = extract_metadata(temp_path)
@@ -189,8 +192,13 @@ async def upload_final(
     # Verifica che il file temporaneo esista
     filepath = (UPLOAD_DIR / temp_file).resolve()
     
-    if not filepath.is_file() or UPLOAD_DIR not in filepath.parents:
-        raise HTTPException(400, "Percorso file non valido")    
+    # Verifica che sia all'interno di UPLOAD_DIR
+    if not str(filepath).startswith(str(UPLOAD_DIR.resolve())):
+        raise HTTPException(400, "Percorso file non valido")
+
+    # Controlla che il file esista fisicamente
+    if not filepath.is_file():
+        raise HTTPException(400, "File non trovato")    
     
     # Se è presente una copertura, ottieni i dati dell'immagine
     cover_data = await cover.read() if cover else None
@@ -219,10 +227,10 @@ async def upload_final(
         
     finally:
         for f in UPLOAD_DIR.iterdir():
-            if f.is_file():
+            if f.is_file() and time.time() - f.stat().st_mtime > 600:
                 try:
                     f.unlink()
                 except Exception as e:
-                    print(f"Errore rimuovendo {f}: {e}")
+                    print(f"Errore cancellando {f}: {e}")
 
     return JSONResponse({"message": "Upload completato con successo!"})
