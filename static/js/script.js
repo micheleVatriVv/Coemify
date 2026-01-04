@@ -335,7 +335,10 @@ async function searchMetadata() {
                             document.getElementById("coverImg").src = coverUrl;
                         });
                 } else {
-                    document.getElementById("coverImg").src = "/static/img/default.png";
+                    // NON toccare il file input se non c'è una cover nuova
+                    if (!document.getElementById("coverFile").files.length) {
+                        document.getElementById("coverImg").src = "/static/img/default.png";
+                    }
                 }
 
 

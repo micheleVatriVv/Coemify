@@ -1,5 +1,5 @@
 import base64
-from mutagen.id3 import ID3, TIT2, TPE1, TPE2, TALB, TCON, TDRC, TCOM, APIC, TXXX
+from mutagen.id3 import ID3, TIT2, TPE1, TPE2, TALB, TCON, TDRC, TCOM, APIC, TXXX, TRCK, TCMP, TPOS
 from mutagen.mp3 import MP3
 
 # ------------------------
@@ -50,7 +50,8 @@ def update_metadata(file_path, data, cover_data=None):
     # Rimozione campi esistenti
     for tag in [
         "TPE1", "TPE2", "TCOM",
-        "TALB", "TIT2", "TCON", "TDRC"
+        "TALB", "TIT2", "TCON",
+        "TDRC", "TRCK", "TCMP"
     ]:
         audio.tags.delall(tag)
 
@@ -66,18 +67,12 @@ def update_metadata(file_path, data, cover_data=None):
         audio["TPE1"] = TPE1(encoding=3, text=artist)  # artista brano
         audio["TPE2"] = TPE2(encoding=3, text=artist)  # artista album
         audio["TCOM"] = TCOM(encoding=3, text=artist)  # compositore
+        audio["TXXX:ALBUMARTIST"] = TXXX(encoding=3, desc="ALBUMARTIST", text=artist)
 
-        # Extra compatibilità
-        audio["TXXX:ALBUMARTIST"] = TXXX(
-            encoding=3,
-            desc="ALBUMARTIST",
-            text=artist
-        )
-        
     # Album (TALB)
-    if data.get("album"):
-        audio["TALB"] = TALB(encoding=3, text=data["album"])
-
+    if album:
+        audio["TALB"] = TALB(encoding=3, text=album)
+    
     # Genere (TCON)
     if data.get("genre"):
         audio["TCON"] = TCON(encoding=3, text=data["genre"])
@@ -87,7 +82,7 @@ def update_metadata(file_path, data, cover_data=None):
         audio["TDRC"] = TDRC(encoding=3, text=data["release_date"])
 
     # Cover (APIC)
-    if cover_data:        
+    if cover_data:
         audio["APIC"] = APIC(
             encoding=3,  # UTF-8
             mime="image/jpeg",
