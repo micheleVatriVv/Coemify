@@ -57,6 +57,7 @@ export async function firstUpload() {
     document.getElementById("genre").value = md.genre || "";
     document.getElementById("duration").value = md.duration || "";
     document.getElementById("release_date").value = md.release_date || "";
+    document.getElementById("track_number").value = md.track_number || 1;
 
     if (md.cover) {
         document.getElementById("coverImg").src = md.cover;
@@ -94,6 +95,7 @@ export async function finalUpload() {
     formData.append("genre", document.getElementById("genre").value);  // Genere
     formData.append("duration", document.getElementById("duration").value);  // Durata
     formData.append("release_date", document.getElementById("release_date").value);  // Anno
+    formData.append("track_number", document.getElementById("track_number").value);  // Traccia N°
 
     // Aggiungi il file di copertura se presente
     if (coverFile) {
@@ -186,9 +188,16 @@ export async function batchFirstUpload(files) {
             const trackItem = document.createElement("div");
             trackItem.className = "track-item mb-2 p-2 bg-dark rounded";
             const formattedDuration = formatDuration(track.duration);
+            // Use original track number from metadata, or fallback to index + 1
+            const trackNumber = track.track_number || (index + 1);
             trackItem.innerHTML = `
                 <div class="d-flex align-items-center">
-                    <span class="text-white me-2" style="min-width: 25px;">${index + 1}.</span>
+                    <input type="number"
+                           class="form-control form-control-sm track-number me-2"
+                           data-index="${index}"
+                           value="${trackNumber}"
+                           min="1"
+                           style="width: 50px; text-align: center;">
                     <input type="text"
                            class="form-control form-control-sm track-title"
                            data-index="${index}"
@@ -235,16 +244,19 @@ export async function batchFinalUpload() {
     const genre = document.getElementById("genre").value;
     const release_date = document.getElementById("release_date").value;
 
-    // Gather track titles from inputs
-    const trackInputs = document.querySelectorAll(".track-title");
+    // Gather track data from inputs
+    const trackTitleInputs = document.querySelectorAll(".track-title");
+    const trackNumberInputs = document.querySelectorAll(".track-number");
     const tracksData = [];
 
-    trackInputs.forEach((input, index) => {
+    trackTitleInputs.forEach((input, index) => {
         const track = batchTracks[index];
+        const trackNumber = trackNumberInputs[index]?.value || (index + 1);
         tracksData.push({
             temp_file: track.temp_file,
             title: input.value || track.title,
-            duration: track.duration
+            duration: track.duration,
+            track_number: parseInt(trackNumber, 10)
         });
     });
 

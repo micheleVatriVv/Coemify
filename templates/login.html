@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Login | Coemify</title>
+    <link rel="icon" href="/static/img/icon.png" type="image/png">
+
+    <meta name="robots" content="noindex, nofollow">
+
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/login.css">
+</head>
+<body>
+    <div class="login-container">
+        <h2>Coemify</h2>
+        <form id="login-form" method="post" action="/login">
+            <label for="username">User</label>
+            <input type="text" name="username" id="username" placeholder="Inserisci username" required>
+
+            <label for="password">Password</label>
+            <input type="password" name="password" id="password" placeholder="Inserisci password" required>
+
+            <button type="submit">Login</button>
+        </form>
+        <p class="info-text">Accesso riservato ai gaioni</p>
+    </div>
+</body>
+</html>

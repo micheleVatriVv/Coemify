@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coemify</title>
+    
+    <link rel="icon" href="/static/img/icon.png" type="image/png">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="/static/css/style.css">
+
+</head>
+<body>
+    
+    <div id="alertContainer"></div>
+    
+    <div class="header">
+        <h1>Coemify</h1>
+        <p>App ufficiale dei figli della merda</p>
+    </div>
+
+    <!-- Form iniziale upload -->
+    <div id="uploadSection" class="card bg-transparent border-0 p-4 mb-4 w-50">
+        <form id="uploadForm">
+            <div id="dropZone" class="drop-zone">
+                <h2 style="margin-top: 15%;">🎵</h2>
+
+                <p class="mt-4">Drag, Click, Tap</p>
+                <p class="small text-muted">Puoi selezionare più file per album</p>
+                <input type="file" id="audioFile" accept="audio/*" required hidden multiple>
+            </div>
+        </form>
+    </div>
+
+    <!-- Dashboard vera e propria, inizialmente nascosta -->
+    <div id="dashboardContent" class="row" style="display:none;">
+
+        <!-- Colonna sinistra: copertina + track list -->
+        <div class="col-lg-3 col-md-3 col-sm-12 my-auto">
+            <div class="card bg-transparent border-0">
+                <div class="cover-container text-center mb-4">
+
+                    <div id="fileInfo" class="my-2 text-white" style="font-style:italic; color:#333;"></div>
+
+                    <img id="coverImg" src="/static/img/default.png" alt="Copertina">
+
+                    <button type="button" id="uploadCoverBtn">Carica copertina</button>
+                        <input type="file" id="coverFile" accept="image/*" style="display:none;">
+
+                </div>
+            </div>
+
+            <!-- Track list for multi-file upload -->
+            <div id="trackListSection" class="card bg-transparent border-0" style="display: none; max-height: 40vh;">
+                <h5 class="text-white pt-2">Tracce Album</h5>
+                <div id="trackList" class="overflow-y-auto" style="max-height: 35vh;"></div>
+            </div>
+        </div>
+
+        <!-- Colonna centrale: form metadati -->
+        <div class="col-lg-6 col-md-6 col-sm-12">
+            <div class="card p-4 mb-2">
+                <form id="metadataForm">
+                    <input type="hidden" id="tempFile" name="temp_file">
+
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Titolo</label>
+                        <input type="text" id="title" class="form-control" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="artist" class="form-label">Autore</label>
+                        <input list="artists" id="artist" class="form-control" placeholder="Inizia a scrivere...">
+                        <datalist id="artists"></datalist>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="album" class="form-label">Album</label>
+                        <input list="albums" id="album" class="form-control" placeholder="Inizia a scrivere...">
+                        <datalist id="albums"></datalist>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="release_date" class="form-label">Anno</label>
+                        <input type="text" id="release_date" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label for="genre" class="form-label">Genere</label>
+                        <input list="genres" id="genre" class="form-control" placeholder="Inizia a scrivere...">
+                        <datalist id="genres"></datalist>
+                    </div>
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label for="duration" class="form-label">Durata</label>
+                            <input type="text" id="duration" class="form-control">
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label for="track_number" class="form-label">Traccia N°</label>
+                            <input type="number" id="track_number" class="form-control" min="1">
+                        </div>
+                    </div>
+
+                    <div class="btn-group d-flex">
+                        <button type="button" id="search-meta" class="btn btn-light">Cerca metadati</button>
+                        <button id="finalUpload" type="button" class="btn save">Salva in Navidrome</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Colonna destra: duplicati Navidrome -->
+        <div class="col-lg-3 col-md-3 col-sm-12">
+            <div class="card bg-transparent border-0" style="height: 15vh;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="text-white pt-2">Duplicati</h5>
+                    <span id="dup-badge" class="badge bg-light"></span>
+                </div>
+                <ul id="duplicatesList" class="list-group overflow-y-auto"></ul>
+            </div>
+
+            <div class="card bg-transparent border-0" style="height: 50vh;">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="text-white pt-3">Albums artista</h5>
+                    <span id="album-badge" class="badge bg-light mt-2"></span>
+                </div>
+                <ul id="sameArtistList" class="list-group overflow-y-auto"></ul>
+            </div>
+        </div>
+    </div>
+
+    <footer class="bg-transparent text-white py-1 mt-3">
+        <div class="text-center">
+
+            <div class="d-flex justify-content-center gap-4 fs-3">
+            
+                <a href="https://github.com/logo94/Coemify" target="_blank" class="text-white" aria-label="GitHub">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="33" height="33" fill="currentColor" class="bi bi-github" viewBox="0 0 16 16">
+                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"/>
+                    </svg>                
+                </a>
+
+                <a href="https://paypal.me/L0G094" target="_blank" class="text-white" aria-label="Paypal">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#e3e3e3"><path d="M640-520q17 0 28.5-11.5T680-560q0-17-11.5-28.5T640-600q-17 0-28.5 11.5T600-560q0 17 11.5 28.5T640-520Zm-320-93.33h200V-680H320v66.67ZM180-120q-34-114-67-227.5T80-580q0-92 64-156t156-64h200q29-38 70.5-59t89.5-21q25 0 42.5 17.5T720-820q0 6-1.5 12t-3.5 11q-4 11-7.5 22.5T702-751l91 91h87v279l-113 37-67 224H480v-80h-80v80H180Zm50-66.67h103.33v-80h213.34v80H650l62.67-208.66 100.66-34.34v-163.66h-48l-132-132q.67-23.34 5.17-45.17 4.5-21.83 10.17-44.17-35 9.34-65 28.84t-45.34 52.5H300q-63.52 0-108.43 44.9-44.9 44.91-44.9 108.43 0 101.44 28.33 198.22t55 195.11Zm250-314Z"/></svg>
+                </a>
+                <a href="https://www.pikapods.com/pods" target="_blank" class="text-white" aria-label="PikaPod">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#e3e3e3"><path d="M254-160q-89 0-151.5-62T40-373q0-78 49-137.67 49-59.66 125.67-73.33 21.66-95.33 96-155.33 74.33-60 170.66-60 113.67 0 192.17 81.5 78.5 81.5 78.5 196.5v16q71 1.33 119.5 50.83T920-332.67q0 71-50.83 121.84Q818.33-160 747.33-160H254Zm0-66.67h493.33q44 0 75-31t31-75q0-44-31-75t-75-31h-62v-82.66q0-88.34-60.16-149.84-60.17-61.5-146.5-61.5-86.34 0-146.84 61.5t-60.5 149.84H252q-60.67 0-103 42.66Q106.67-436 106.67-374q0 61.33 43 104.33t104.33 43ZM480-480Z"/></svg>
+                </a>
+
+                <a href="https://coemify.pikapod.net/app/#/login" target="_blank" class="text-white" aria-label="Navidrome">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#e3e3e3"><path d="M540-160.67q-64 0-107.67-43.66Q388.67-248 388.67-312t43.66-107.67Q476-463.33 540-463.33q25 0 45.17 6.83 20.16 6.83 39.5 19.83V-800H880v113.33H691.33V-312q0 64-43.66 107.67Q604-160.67 540-160.67ZM80-312q0-98.33 35.33-182.5 35.34-84.17 97-145.83Q274-702 358.17-737q84.16-35 181.83-35v66.67q-84 0-156 29.83t-124.83 82.67Q206.33-540 176.5-468.17 146.67-396.33 146.67-312H80Zm133.33 0q0-70.67 24.84-130.83Q263-503 306.5-546.5t103.17-67.83q59.66-24.34 130.33-24.34V-572q-115.33 0-187.67 72Q280-428 280-312h-66.67Z"/></svg>
+                </a>
+                
+                <a href="https://v1.y2mate.nu/" target="_blank" class="text-white" aria-label="mp3 Youtube Downloader">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="45px" viewBox="0 -960 960 960" width="45px" fill="#e3e3e3"><path d="M616-242q-27 1-51.5 1.5t-43.5.5h-41q-71 0-133-2-53-2-104.5-5.5T168-257q-26-7-45-26t-26-45q-6-23-9.5-56T82-447q-2-36-2-73t2-73q2-30 5.5-63t9.5-56q7-26 26-45t45-26q23-6 74.5-9.5T347-798q62-2 133-2t133 2q53 2 104.5 5.5T792-783q26 7 45 26t26 45q6 23 9.5 56t5.5 63q2 36 2 73v17q-19-8-39-12.5t-41-4.5q-83 0-141.5 58.5T600-320q0 21 4 40.5t12 37.5ZM400-400l208-120-208-120v240Zm360 200v-80h-80v-80h80v-80h80v80h80v80h-80v80h-80Z"/></svg>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- Spinner di caricamento -->
+    <div id="uploadSpinner" class="spinner-border text-white mt-5" role="status" style="display: none;">
+        <span class="visually-hidden">Caricamento...</span>
+    </div>
+
+    <!-- Modal Bootstrap -->
+    <div class="modal fade" id="metadataModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-scrollable modal-lg">
+            <div class="modal-content bg-transparent">
+                <div class="modal-body" id="metadataCandidates"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="/static/js/main.js"></script>
+</body>
+</html>

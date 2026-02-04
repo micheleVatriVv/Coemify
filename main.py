@@ -235,6 +235,7 @@ async def upload_final(
     genre: str = Form(...),
     duration: str = Form(...),
     release_date: str = Form(...),
+    track_number: str = Form(None),
     cover: UploadFile = File(None)
 ):
     
@@ -264,11 +265,12 @@ async def upload_final(
                 "album": album,
                 "genre": genre,
                 "duration": duration,
-                "release_date": release_date
+                "release_date": release_date,
+                "track_number": int(track_number) if track_number else None
             },
             cover_data
         )
-        
+
         upload_sftp(filepath, artist, title)
         
     except Exception as e:
@@ -347,6 +349,7 @@ async def upload_temp_batch(files: List[UploadFile] = File(...)):
             "temp_file": filename,
             "title": metadata.get("title", Path(file.filename).stem),
             "duration": metadata.get("duration", ""),
+            "track_number": metadata.get("track_number"),
             "original_filename": file.filename
         })
 
@@ -387,6 +390,7 @@ async def upload_final_batch(
         temp_file = track.get("temp_file")
         title = track.get("title")
         duration = track.get("duration", "")
+        track_number = track.get("track_number")
 
         if not temp_file or not title:
             errors.append(f"Traccia con dati mancanti: {track}")
@@ -414,7 +418,8 @@ async def upload_final_batch(
                     "album": album,
                     "genre": genre,
                     "duration": duration,
-                    "release_date": release_date
+                    "release_date": release_date,
+                    "track_number": track_number
                 },
                 cover_data
             )
