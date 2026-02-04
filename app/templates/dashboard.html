@@ -28,7 +28,8 @@
                 <h2 style="margin-top: 15%;">🎵</h2>
 
                 <p class="mt-4">Drag, Click, Tap</p>
-                <input type="file" id="audioFile" accept="audio/*" required hidden>
+                <p class="small text-muted">Puoi selezionare più file per album</p>
+                <input type="file" id="audioFile" accept="audio/*" required hidden multiple>
             </div>
         </form>
     </div>
@@ -36,7 +37,7 @@
     <!-- Dashboard vera e propria, inizialmente nascosta -->
     <div id="dashboardContent" class="row" style="display:none;">
 
-        <!-- Colonna sinistra: copertina -->
+        <!-- Colonna sinistra: copertina + track list -->
         <div class="col-lg-3 col-md-3 col-sm-12 my-auto">
             <div class="card bg-transparent border-0">
                 <div class="cover-container text-center mb-4">
@@ -44,11 +45,17 @@
                     <div id="fileInfo" class="my-2 text-white" style="font-style:italic; color:#333;"></div>
 
                     <img id="coverImg" src="/static/img/default.png" alt="Copertina">
-                    
+
                     <button type="button" id="uploadCoverBtn">Carica copertina</button>
                         <input type="file" id="coverFile" accept="image/*" style="display:none;">
 
                 </div>
+            </div>
+
+            <!-- Track list for multi-file upload -->
+            <div id="trackListSection" class="card bg-transparent border-0" style="display: none; max-height: 40vh;">
+                <h5 class="text-white pt-2">Tracce Album</h5>
+                <div id="trackList" class="overflow-y-auto" style="max-height: 35vh;"></div>
             </div>
         </div>
 

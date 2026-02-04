@@ -3,8 +3,18 @@ import { getReleaseYear, showAlert } from "./utils.js";
 
 export async function searchMetadata() {
 
-    const title = document.getElementById("title").value.trim();
+    let title;
     const artist = document.getElementById("artist").value.trim();
+
+    // Check if in batch mode by looking for track title inputs
+    const firstTrackInput = document.querySelector("input.track-title");
+
+    // In batch mode, use the first track's title for search
+    if (firstTrackInput && firstTrackInput.value) {
+        title = firstTrackInput.value.trim();
+    } else {
+        title = document.getElementById("title").value.trim();
+    }
 
     if (!title || !artist) return showAlert(`Titolo e artista obbligatori`, 'warning');
 

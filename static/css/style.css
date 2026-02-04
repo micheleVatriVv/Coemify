@@ -189,4 +189,31 @@ button:hover {
     background-color: rgba(139, 111, 214, 0.75);
 }
 
+/* Track list styles for multi-file upload */
+#trackListSection {
+    margin-top: 20px;
+}
 
+#trackListSection h5 {
+    margin-bottom: 10px;
+}
+
+.track-item {
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.track-item:hover {
+    background-color: rgba(0, 0, 0, 0.4);
+}
+
+.track-title {
+    background-color: rgba(255, 255, 255, 0.9);
+    border: none;
+    flex: 1;
+}
+
+.track-title:focus {
+    background-color: white;
+    box-shadow: 0 0 0 2px rgba(78, 84, 200, 0.5);
+}

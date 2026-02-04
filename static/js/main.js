@@ -1,4 +1,4 @@
-import { firstUpload, finalUpload } from "./upload.js";
+import { firstUpload, finalUpload, batchFirstUpload, batchFinalUpload, isBatchMode } from "./upload.js";
 import { loadOptions, checkDuplicates, loadArtistAlbums } from "./api.js";
 import { debounce, openCoverDialog, previewCover } from "./utils.js";
 import { searchMetadata } from "./musicbrainz.js";
@@ -42,24 +42,38 @@ document.addEventListener("DOMContentLoaded", async () => {
     dropZone.addEventListener("drop", async (e) => {
         dropZone.classList.remove("dragover");
 
-        if (e.dataTransfer.files.length > 0) {
-            fileInput.files = e.dataTransfer.files;
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
 
-            const file = e.dataTransfer.files[0];
-            fileInfo.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
-        
-            await firstUpload();
-            await checkDuplicates();
+            if (files.length > 1) {
+                // Multi-file batch upload
+                fileInfo.textContent = `${files.length} file selezionati`;
+                await batchFirstUpload(files);
+            } else {
+                // Single file upload
+                const file = files[0];
+                fileInfo.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+                await firstUpload();
+                await checkDuplicates();
+            }
         }
     });
 
     fileInput.addEventListener("change", async () => {
-        if (fileInput.files.length > 0) {
-            const file = fileInput.files[0];
-            fileInfo.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
-            
-            await firstUpload();
-            await checkDuplicates();
+        const files = fileInput.files;
+        if (files.length > 0) {
+            if (files.length > 1) {
+                // Multi-file batch upload
+                fileInfo.textContent = `${files.length} file selezionati`;
+                await batchFirstUpload(files);
+            } else {
+                // Single file upload
+                const file = files[0];
+                fileInfo.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+                await firstUpload();
+                await checkDuplicates();
+            }
         }
     });
 
@@ -95,7 +109,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     finalUploadBtn.addEventListener("click", async (event) => {
         event.preventDefault();
 
-        await finalUpload()
+        if (isBatchMode()) {
+            await batchFinalUpload();
+        } else {
+            await finalUpload();
+        }
     })
 
 
